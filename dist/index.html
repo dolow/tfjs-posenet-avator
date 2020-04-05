@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>#stage-image  { position: absolute; }
+      #stage-canvas { position: absolute; }
+      #stage-video  { position: absolute; }
+      #camera       { transform: scaleX(-1); }
+      #root         { display: none; }</style>
+    <script type="text/javascript" src="/tfjs-posenet-avator.77de5100.js"></script>
+    <script>var estimator = new PoseNetAvator();
+
+function initCamera() {
+  var config = {
+    audio: false,
+    video: {
+      width: 640,
+      height: 640,
+      facingMode: 'user' // front camera
+      // facingMode: { exact: "environment" }  // rear camera
+
+    }
+  };
+  return navigator.mediaDevices.getUserMedia(config).then(function (stream) {
+    var video = document.getElementById("camera");
+
+    if (video.srcObject !== null) {
+      return video;
+    }
+
+    video.width = config.video.width;
+    video.height = config.video.height;
+    video.srcObject = stream;
+    return new Promise(function (resolve) {
+      video.addEventListener('loadedmetadata', function (e) {
+        video.play();
+        estimator.resize(config.video.width, config.video.height);
+        resolve(video);
+      });
+    });
+  });
+}
+
+function clear() {
+  estimator.clear();
+  var video = document.getElementById('camera');
+  var image = document.getElementById('image-estimate');
+  video.style.visibility = 'hidden';
+  image.style.visibility = 'hidden';
+}
+
+function estimateWithVideo() {
+  clear();
+  var video = document.getElementById('camera');
+  video.style.visibility = 'visible';
+  initCamera().then(function (video) {
+    return estimator.estimate(video);
+  });
+}
+
+function estimateWithImage() {
+  clear();
+  var image = document.getElementById('image-estimate');
+  image.style.visibility = 'visible';
+  var url = document.getElementById('text-url').value;
+  image.src = url; // /resources/sample1.jpg
+
+  image.addEventListener('load', function () {
+    estimator.resize(image.width, image.height);
+    estimator.estimate(image);
+  });
+  image.addEventListener('error', function () {
+    return estimator.clear();
+  });
+}
+
+window.addEventListener('load', function () {
+  var dom = document.getElementById('stage-canvas');
+  estimator.init(dom).then(function () {
+    var root = document.getElementById('root');
+    var loading = document.getElementById('loading');
+    root.style.display = 'block';
+    loading.style.display = 'none';
+    document.getElementById('button-url').addEventListener('click', function () {
+      return estimateWithImage();
+    });
+    document.getElementById('button-camera').addEventListener('click', function () {
+      return estimateWithVideo();
+    });
+  });
+});</script>
+  </head>
+  <body>
+    <div id="loading">
+      Loading...
+    </div>
+    <div id="root">
+      <input id="text-url" type="text">
+      <input id="button-url" type="button" value="estimate with image">
+      <input id="button-camera" type="button" value="estimate with camera">
+      <div>
+        <div id="stage-image">
+          <img id="image-estimate">
+        </div>
+        <div id="stage-video">
+          <video id="camera"></video>
+        </div>
+        <div id="stage-canvas"></div>
+      </div>
+    </div>
+  </body>
+</html>

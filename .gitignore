@@ -1,0 +1,11 @@
+# artifact
+dist/tfjs-posenet-avator.*
+
+# parcel
+.cache
+
+# npm
+node_modules
+
+# macOS
+.DS_Store
