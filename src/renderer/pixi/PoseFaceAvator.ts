@@ -1,25 +1,25 @@
-import { Container, Sprite, Loader, resources } from 'pixi.js';
-import { Pose, KeyPoint, KeyPointNames } from '../PoseNetInterface';
+import { Container, Sprite, Loader } from 'pixi.js';
+import { Pose, KeyPoint, KeyPointNames } from '../../PoseNetInterface';
+import { PixiAvator } from './PixiAvator';
 
-export class PoseAvator extends Container {
-  private pose: Pose = null;
+export class PoseFaceAvator extends PixiAvator {
   private sprites: { [string]: Sprite } = {};
 
-  constructor(pose: Pose) {
-    super()
-    this.setPose(pose);
-
-    Loader.shared
-      .add(KeyPointNames.LeftEye,  '/resources/eye_left.png')
-      .add(KeyPointNames.RightEye, '/resources/eye_right.png')
-      .load((_, res) => {
-        this.sprites[KeyPointNames.LeftEye]  = new Sprite(res[KeyPointNames.LeftEye].texture);
-        this.sprites[KeyPointNames.RightEye] = new Sprite(res[KeyPointNames.RightEye].texture);
-      });
+  public get name(): string {
+    return 'face';
   }
 
-  public setPose(pose: Pose): void {
-    this.pose = pose;
+  public get resourceList() {
+    return [
+      { name: KeyPointNames.LeftEye,  url: '/resources/eye_left.png'  },
+      { name: KeyPointNames.RightEye, url: '/resources/eye_right.png' }
+    ];
+  }
+
+  public onResourceLoaded(): void {
+    const resources = Loader.shared.resources;
+    this.sprites[KeyPointNames.LeftEye]  = new Sprite(resources[KeyPointNames.LeftEye].texture);
+    this.sprites[KeyPointNames.RightEye] = new Sprite(resources[KeyPointNames.RightEye].texture);
   }
 
   public update(dt: number): void {
@@ -45,7 +45,7 @@ export class PoseAvator extends Container {
         continue;
       }
       if (!sprite.parent) {
-        this.addChild(sprite);
+        this.container.addChild(sprite);
       }
 
       sprite.x = keypoint.position.x - sprite.width  * 0.5;

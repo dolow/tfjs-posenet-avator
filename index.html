@@ -2,6 +2,8 @@
 <html>
   <head>
     <style>
+      #button-game-touch { visibility: hidden; }
+      #debug-menu   { display: none; }
       #stage-image  { position: absolute; }
       #stage-canvas { position: absolute; }
       #stage-video  { position: absolute; }
@@ -11,12 +13,13 @@
     <script type='text/javascript' src='./index.ts'></script>
     <script type='text/javascript'>
       const estimator = new PoseNetAvator();
+      const autoStart = true;
 
       function initCamera() {
         const config = {
           audio: false,
           video: {
-            width: 640,
+            width: window.innerWidth,
             height: 640,
             facingMode: 'user' // front camera
             // facingMode: { exact: "environment" }  // rear camera
@@ -53,7 +56,8 @@
 
         const video = document.getElementById('camera');
         video.style.visibility = 'visible';
-        initCamera().then((video) => estimator.estimate(video));
+
+        return initCamera().then((video) => estimator.estimate(video));
       }
 
       function estimateWithImage() {
@@ -61,8 +65,9 @@
 
         const image = document.getElementById('image-estimate');
         image.style.visibility = 'visible';
-        const url   = document.getElementById('text-url').value;
-        image.src = url; // /resources/sample1.jpg
+
+        const url = document.getElementById('text-url').value;
+        image.src = url;
         image.addEventListener('load', () => {
           estimator.resize(image.width, image.height);
           estimator.estimate(image);
@@ -70,16 +75,49 @@
         image.addEventListener('error', () => estimator.clear());
       }
 
+      function beginTouchGame() {
+        const camera = document.getElementById("camera");
+        estimator.beginGame({
+          game: 'touch',
+          playerAvators: ['gloves'],
+          updateCallback: (result) => {
+            document.getElementById('stat').innerHTML = `score: ${result.score} pts`;
+          },
+          gameOption: {
+            rule: 'single',
+            enemy: {
+              width: 120,
+              height: 120
+            },
+            spawnArea: {
+              x: 60,
+              y: 60,
+              width: camera.width - 120,
+              height: camera.height - 120
+            }
+          }
+        });
+      }
+
       window.addEventListener('load', () => {
+        const scoreThreshold = 0.4;
         const dom = document.getElementById('stage-canvas');
-        estimator.init(dom).then(() => {
-          const root    = document.getElementById('root');
+
+        estimator.init(dom, ['gloves', 'graphics', 'text'], scoreThreshold).then(() => {
           const loading = document.getElementById('loading');
-          root.style.display    = 'block';
           loading.style.display = 'none';
 
-          document.getElementById('button-url').addEventListener('click', () => estimateWithImage());
-          document.getElementById('button-camera').addEventListener('click', () => estimateWithVideo());
+          const root = document.getElementById('root');
+          root.style.display = 'block';
+
+          if (autoStart) {
+            estimateWithVideo().then(() => beginTouchGame());
+          } else {
+            document.getElementById('debug-menu').style.display = 'block';
+            document.getElementById('button-url').addEventListener('click', () => estimateWithImage());
+            document.getElementById('button-camera').addEventListener('click', () => estimateWithVideo());
+            document.getElementById('button-game-touch').addEventListener('click', () => beginTouchGame());
+          }
         });
       });
     </script>
@@ -89,9 +127,13 @@
       Loading...
     </div>
     <div id='root'>
-      <input id='text-url' type='text' />
-      <input id='button-url' type='button' value='estimate with image' />
-      <input id='button-camera' type='button' value='estimate with camera' />
+      <div id='debug-menu'>
+        <input id='text-url' type='text' />
+        <input id='button-url' type='button' value='estimate with image' />
+        <input id='button-camera' type='button' value='estimate with camera' />
+        <input id='button-game-touch' type='button' value='begin touch game' />
+      </div>
+      <span id='stat'></span>
       <div>
         <div id='stage-image'>
           <img id='image-estimate' />

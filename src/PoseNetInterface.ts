@@ -15,11 +15,15 @@ interface Pose {
 type PoseNetSrc = ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement;
 
 const KeyPointNames = Object.freeze({
-  LeftEye:  'leftEye',
-  RightEye: 'rightEye',
-  LeftEar:  'leftEar',
-  RightEar: 'rightEar',
-  Node:     'nose',
+  LeftEye:    'leftEye',
+  RightEye:   'rightEye',
+  LeftEar:    'leftEar',
+  RightEar:   'rightEar',
+  Node:       'nose',
+  LeftWrist:  'leftWrist',
+  LeftElbow:  'leftElbow',
+  RightWrist: 'rightWrist',
+  RightElbow: 'rightElbow',
   // TODO:
 });
 

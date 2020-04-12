@@ -1,8 +1,8 @@
 import { Container, Text, TextStyle } from 'pixi.js';
-import { Pose, KeyPoint } from '../PoseNetInterface';
+import { Pose, KeyPoint } from '../../PoseNetInterface';
+import { PixiAvator } from './PixiAvator';
 
-export class PosePartTextGroup extends Container {
-  private pose: Pose = null;
+export class PosePartTextGroup extends PixiAvator {
   private texts: { [string]: Text } = {};
 
   private textStyle = new TextStyle({
@@ -11,14 +11,8 @@ export class PosePartTextGroup extends Container {
     fill: 0x00ddee,
   });
 
-  constructor(pose: Pose) {
-    super()
-
-    this.setPose(pose);
-  }
-
-  public setPose(pose: Pose): void {
-    this.pose = pose;
+  public get name(): string {
+    return 'text';
   }
 
   public update(dt: number) {
@@ -38,7 +32,7 @@ export class PosePartTextGroup extends Container {
       let text = this.texts[part];
       if (!text) {
         text = new Text(keypoint.part, this.textStyle);
-        this.addChild(text);
+        this.container.addChild(text);
         this.texts[part] = text;
       }
 
