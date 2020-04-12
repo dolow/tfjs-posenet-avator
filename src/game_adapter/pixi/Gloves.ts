@@ -27,7 +27,7 @@ export class Gloves extends GameAdapter {
   private ready: bool = false;
 
   public get resourceList() {
-    return [{name: 'bug', url: '/resources/bug.png'}];
+    return [{name: 'bug', url: './resources/bug.png'}];
   }
 
   public onResourceLoaded(): void {

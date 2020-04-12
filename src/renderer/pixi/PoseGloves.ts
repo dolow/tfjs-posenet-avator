@@ -80,7 +80,7 @@ export class PoseGloves extends PixiAvator {
   }
 
   public get resourceList() {
-    return [{name: 'glove', url: '/resources/glove.png'}];
+    return [{name: 'glove', url: './resources/glove.png'}];
   }
 
   public onResourceLoaded(): void {

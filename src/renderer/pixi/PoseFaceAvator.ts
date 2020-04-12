@@ -11,8 +11,8 @@ export class PoseFaceAvator extends PixiAvator {
 
   public get resourceList() {
     return [
-      { name: KeyPointNames.LeftEye,  url: '/resources/eye_left.png'  },
-      { name: KeyPointNames.RightEye, url: '/resources/eye_right.png' }
+      { name: KeyPointNames.LeftEye,  url: './resources/eye_left.png'  },
+      { name: KeyPointNames.RightEye, url: './resources/eye_right.png' }
     ];
   }
 
